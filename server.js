@@ -130,6 +130,7 @@ app.prepare().then(() => {
         // Create the namespace dynamically if it doesn't exist
         namespaces[namespace] = io.of(`/${namespace}`);
         namespaces[namespace].on("connection", (nsSocket) => {
+          namespaces[namespace].count = namespaces[namespace].count + 1 || 1;
           console.log(`User connected to namespace: ${namespace}`);
           nsSocket.emit("connection-success", {
             data: `User connected to namespace: ${namespace}`,
@@ -370,6 +371,12 @@ app.prepare().then(() => {
 
           nsSocket.on("disconnect", () => {
             console.log(`User disconnected from namespace: ${namespace}`);
+            namespaces[namespace].count = namespaces[namespace].count - 1;
+            if (namespaces[namespace].count === 0) {
+              console.log("No users in the namespace");
+              delete namespaces[namespace];
+              delete rooms[namespace];
+            }
             // remove the transport associated with the socket
             transports = transports.filter(
               (obj) => obj.socketId !== nsSocket.id
