@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { socket } from "@/socket";
+import Link from "next/link";
 
 const Home = () => {
   const [namespaces, setNamespaces] = React.useState([]);
@@ -22,10 +23,14 @@ const Home = () => {
   return (
     <div>
       Rooms:{" "}
-      {namespaces.map((room, index) => (
-        // Added a unique key for each room
-        <p key={index}>{room}</p>
-      ))}
+      <ul>
+        {namespaces.map((room, index) => (
+          // Added a unique key for each room
+          <li key={index}>
+            <Link href={`/room/${room}`}>{room}</Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
