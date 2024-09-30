@@ -285,10 +285,12 @@ app.prepare().then(() => {
             let currentProducers = [];
             console.log(producers.length, "producers");
             producers.forEach((producer) => {
-              currentProducers = [
-                ...currentProducers,
-                { id: producer.producer.id, kind: producer.producer.kind },
-              ];
+              if (producer.roomName === roomName) {
+                currentProducers = [
+                  ...currentProducers,
+                  { id: producer.producer.id, kind: producer.producer.kind },
+                ];
+              }
             });
             callback(currentProducers);
           });
@@ -368,6 +370,20 @@ app.prepare().then(() => {
 
           nsSocket.on("disconnect", () => {
             console.log(`User disconnected from namespace: ${namespace}`);
+            // remove the transport associated with the socket
+            transports = transports.filter(
+              (obj) => obj.socketId !== nsSocket.id
+            );
+
+            // remove the producer associated with the socket
+            producers = producers.filter((obj) => obj.socketId !== nsSocket.id);
+
+            // remove the consumer associated with the socket
+            consumers = consumers.filter((obj) => obj.socketId !== nsSocket.id);
+
+            nsSocket.broadcast.emit("producer-remove", {
+              socketId: nsSocket.id,
+            });
           });
         });
       }

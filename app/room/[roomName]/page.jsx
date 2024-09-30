@@ -6,6 +6,7 @@ import * as mediasoup from "mediasoup-client";
 import ActiveSpeaker from "./ActiveSpeaker";
 import Consumer from "./Consumer";
 import { Fullscreen, Minimize } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 const RoomNamed = ({ params: { roomName } }) => {
   const nsSocket = useRef(null);
@@ -50,6 +51,7 @@ const RoomNamed = ({ params: { roomName } }) => {
   const isProducer = React.useRef(false);
   const isConsuming = React.useRef(false);
   const speakerIndex = React.useRef(0);
+  const runOnce2 = useRef(false);
   useEffect(() => {
     if (runOnce.current) return;
     socket.emit("joinNamespace", roomName);
@@ -60,9 +62,54 @@ const RoomNamed = ({ params: { roomName } }) => {
       });
       console.log(`Joined namespace: ${namespace}`);
     });
-
     runOnce.current = true;
   }, []);
+
+  useEffect(() => {
+    if (runOnce2.current) return;
+    if (!nsSocket.current) return;
+    nsSocket.current.on("producer-add", ({ id, kind }) => {
+      console.log(`Producer added: ${id}, ${kind}`);
+      if (isConsuming.current) {
+        connectRecvTransport(id);
+      }
+    });
+    const publishId = uuidv4();
+    params.current.appData = { ...params.current, mediaTag: publishId };
+    audioParams.current.appData = {
+      ...audioParams.current,
+      mediaTag: publishId,
+    };
+    nsSocket.current.on("producer-remove", ({ socketId }) => {
+      setConsumers((prevConsumers) => {
+        const newConsumers = [...prevConsumers];
+        const index = newConsumers.findIndex(
+          (consumer) => consumer?.socketId === socketId
+        );
+        if (index !== -1) {
+          newConsumers[index].consumer.close();
+          newConsumers[index] = null;
+        }
+        return newConsumers;
+      });
+      setAudioConsumers((prevConsumers) => {
+        const newConsumers = [...prevConsumers];
+        const index = newConsumers.findIndex(
+          (consumer) => consumer?.socketId === socketId
+        );
+        if (index !== -1) {
+          newConsumers[index].consumer.close();
+          newConsumers[index] = null;
+        }
+        return newConsumers;
+      });
+    });
+
+    runOnce2.current = true;
+    return () => {
+      nsSocket.current.disconnect();
+    };
+  }, [nsSocket.current]);
 
   const getLocalStream = () => {
     setButton(true);
