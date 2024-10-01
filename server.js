@@ -130,7 +130,8 @@ app.prepare().then(() => {
         // Create the namespace dynamically if it doesn't exist
         namespaces[namespace] = io.of(`/${namespace}`);
         namespaces[namespace].on("connection", (nsSocket) => {
-          namespaces[namespace].count = namespaces[namespace].count + 1 || 1;
+          namespaces[namespace].count = (namespaces[namespace].count ?? 0) + 1;
+
           console.log(`User connected to namespace: ${namespace}`);
           nsSocket.emit("connection-success", {
             data: `User connected to namespace: ${namespace}`,
@@ -162,6 +163,22 @@ app.prepare().then(() => {
             });
             namespaces[namespace].sockets.get(socketId).disconnect();
             console.log(socketId, "booted");
+          });
+
+          nsSocket.on("pause", () => {
+            producers
+              .filter((obj) => obj.socketId === nsSocket.id)
+              .forEach((obj) => {
+                obj.producer.pause();
+              });
+          });
+
+          nsSocket.on("resume", () => {
+            producers
+              .filter((obj) => obj.socketId === nsSocket.id)
+              .forEach((obj) => {
+                obj.producer.resume();
+              });
           });
 
           nsSocket.on("createRoom", async (roomName, callback) => {

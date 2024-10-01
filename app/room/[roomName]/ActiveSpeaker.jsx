@@ -16,9 +16,7 @@ const ActiveSpeaker = ({ consumer, audioConsumer, socket, speakerIndex }) => {
     if (audioConsumer) {
       const { track } = audioConsumer.consumer;
       videoRef.current.srcObject.addTrack(track);
-      socket.emit("consumer-resume", {
-        producerId: audioConsumer.producerId,
-      });
+
       socket.on("activeSpeaker", (data) => {
         const activeSpeakerId = data.producerId;
         // Highlight or enlarge the video feed of the active speaker

@@ -1,11 +1,18 @@
 import React, { useEffect, useRef } from "react";
-import { Fullscreen, Minimize, Ban } from "lucide-react";
+import {
+  Fullscreen,
+  Minimize,
+  Ban,
+  CirclePause,
+  CirclePlay,
+} from "lucide-react";
 
 const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
   const videoRef = useRef();
   const runOnce = useRef(false);
   const [fullScreen, setFullScreen] = React.useState(false);
   const videoPlayer = useRef();
+  const [paused, setPaused] = React.useState(false);
   useEffect(() => {
     if (runOnce.current) return;
     const { track } = consumer.consumer;
@@ -56,7 +63,7 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
       />
       {admin.current && (
         <Ban
-          className="absolute bottom-1 right-10 m-2 cursor-pointer"
+          className="absolute top-1 right-1 m-2 cursor-pointer"
           onClick={() => {
             socket.emit("boot", consumer.socketId);
           }}
@@ -75,6 +82,24 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
           onClick={() => {
             document.exitFullscreen();
             setFullScreen(false);
+          }}
+        />
+      )}
+      {consumer.socketId === socket.id && !paused && (
+        <CirclePause
+          className="absolute bottom-1 left-1 m-2 cursor-pointer"
+          onClick={() => {
+            socket.emit("pause");
+            setPaused(true);
+          }}
+        />
+      )}
+      {consumer.socketId === socket.id && paused && (
+        <CirclePlay
+          className="absolute bottom-1 left-1 m-2 cursor-pointer"
+          onClick={() => {
+            socket.emit("resume");
+            setPaused(false);
           }}
         />
       )}
