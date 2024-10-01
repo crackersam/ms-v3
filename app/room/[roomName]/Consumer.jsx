@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from "react";
+import { Fullscreen, Minimize } from "lucide-react";
 
 const Consumer = ({ consumer, audioConsumer, myId, socket }) => {
   const videoRef = useRef();
   const runOnce = useRef(false);
+  const [fullScreen, setFullScreen] = React.useState(false);
+  const videoPlayer = useRef();
   useEffect(() => {
     if (runOnce.current) return;
     const { track } = consumer.consumer;
@@ -41,14 +44,32 @@ const Consumer = ({ consumer, audioConsumer, myId, socket }) => {
     }
   }, [audioConsumer]);
   return consumer ? (
-    <div className="flex flex-col justify-center bg-black align-middle rounded-md m-2 border-slate-400 border-[3px]">
+    <div
+      ref={videoPlayer}
+      className="flex relative w-[180px] h-[180px] flex-col justify-center bg-black align-middle rounded-md m-2 border-slate-400 border-[3px]"
+    >
       <video
         ref={videoRef}
-        className=" w-[180px] h-[180px]"
+        className="max-h-[100%] max-w-[100%]"
         autoPlay
-        controls
         playsInline
       />
+      <Fullscreen
+        className="absolute bottom-1 right-1 m-2 cursor-pointer"
+        onClick={() => {
+          videoPlayer.current.requestFullscreen();
+          setFullScreen(true);
+        }}
+      />
+      {fullScreen && (
+        <Minimize
+          className="absolute bottom-1 right-1 m-2 cursor-pointer"
+          onClick={() => {
+            document.exitFullscreen();
+            setFullScreen(false);
+          }}
+        />
+      )}
     </div>
   ) : null;
 };
