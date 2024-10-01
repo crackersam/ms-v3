@@ -61,9 +61,9 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
         autoPlay
         playsInline
       />
-      {admin.current && (
+      {admin.current && socket.id !== consumer.socketId && (
         <Ban
-          className="absolute top-1 right-1 m-2 cursor-pointer bg-black rounded-md text-white"
+          className="absolute top-1 right-1 m-2 cursor-pointer bg-black rounded-full text-white"
           onClick={() => {
             socket.emit("boot", consumer.socketId);
           }}
@@ -87,7 +87,7 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
       )}
       {consumer.socketId === socket.id && !paused && (
         <CirclePause
-          className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-md text-white"
+          className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-full text-white"
           onClick={() => {
             socket.emit("pause");
             setPaused(true);
@@ -96,7 +96,7 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
       )}
       {consumer.socketId === socket.id && paused && (
         <CirclePlay
-          className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-md text-white"
+          className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-full text-white"
           onClick={() => {
             socket.emit("resume");
             setPaused(false);
