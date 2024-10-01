@@ -30,7 +30,12 @@ const Home = () => {
         {namespaces.length > 0 ? (
           namespaces.map((room, index) => (
             <li key={index}>
-              <Link href={`/room/${room}`}>{room}</Link>
+              <Link
+                className="text-yellow-500 underline"
+                href={`/room/${room}`}
+              >
+                {room}
+              </Link>
             </li>
           ))
         ) : (
