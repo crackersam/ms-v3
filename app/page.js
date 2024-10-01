@@ -2,9 +2,12 @@
 import React, { useEffect } from "react";
 import { socket } from "@/socket";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Home = () => {
   const [namespaces, setNamespaces] = React.useState([]);
+  const newRoomName = React.useRef("");
+  const router = useRouter();
 
   useEffect(() => {
     // Listen for the "list-namespaces" event
@@ -21,16 +24,35 @@ const Home = () => {
   }, []);
 
   return (
-    <div>
-      Rooms:{" "}
+    <div className="w-screen h-screen p-5">
+      <p className="text-xl">Active rooms:</p>
       <ul>
-        {namespaces.map((room, index) => (
-          // Added a unique key for each room
-          <li key={index}>
-            <Link href={`/room/${room}`}>{room}</Link>
-          </li>
-        ))}
+        {namespaces.length > 0 ? (
+          namespaces.map((room, index) => (
+            <li key={index}>
+              <Link href={`/room/${room}`}>{room}</Link>
+            </li>
+          ))
+        ) : (
+          <li>No rooms available</li>
+        )}
       </ul>
+      <hr className="" />
+      <p className="pb-4 pt-4 text-xl">Create a new room:</p>
+      <form>
+        <input
+          ref={newRoomName}
+          type="text"
+          className="rounded-full px-5 py-2 text-2xl text-black"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white text-2xl rounded-full px-5 py-2"
+          onClick={() => router.push(`/room/${newRoomName.current.value}`)}
+        >
+          Go!
+        </button>
+      </form>
     </div>
   );
 };
