@@ -440,7 +440,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       </div>
       {device.current && !isFullscreen && (
         <Fullscreen
-          className="absolute bottom-1 right-1 p-2 text-white bg-black rounded-md"
+          className="absolute bottom-1 right-1 p-2 text-white bg-black rounded-md cursor-pointer"
           size={48}
           stroke="white"
           strokeWidth={2}
@@ -452,7 +452,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       )}{" "}
       {isFullscreen && (
         <Minimize
-          className="absolute bottom-1 bg-black rounded-md right-1 p-2 text-white"
+          className="absolute bottom-1 bg-black rounded-md right-1 p-2 text-white cursor-pointer"
           size={48}
           stroke="white"
           strokeWidth={2}
