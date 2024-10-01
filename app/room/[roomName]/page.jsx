@@ -52,6 +52,7 @@ const RoomNamed = ({ params: { roomName } }) => {
   const isConsuming = React.useRef(false);
   const speakerIndex = React.useRef(0);
   const runOnce2 = useRef(false);
+  const isAdmin = React.useRef(false);
   useEffect(() => {
     if (runOnce.current) return;
     socket.emit("joinNamespace", roomName);
@@ -167,6 +168,7 @@ const RoomNamed = ({ params: { roomName } }) => {
   const getRtpCapabilities = async () => {
     nsSocket.current.emit("createRoom", roomName, (data) => {
       console.log(data);
+      isAdmin.current = data.isAdmin;
       rtpCapabilities.current = data.rtpCapabilities;
       createDevice();
     });
@@ -426,6 +428,7 @@ const RoomNamed = ({ params: { roomName } }) => {
 
           return (
             <Consumer
+              admin={isAdmin}
               key={i}
               myId={myId}
               consumer={consumer} // Pass the video stream

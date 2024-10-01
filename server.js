@@ -210,8 +210,9 @@ app.prepare().then(() => {
 
           const getRtpCapabilities = (roomName, callback) => {
             const rtpCapabilities = rooms[roomName].rtpCapabilities;
+            const isAdmin = nsSocket.id === rooms[roomName].admin;
 
-            callback({ rtpCapabilities });
+            callback({ rtpCapabilities, isAdmin });
           };
 
           nsSocket.on(
