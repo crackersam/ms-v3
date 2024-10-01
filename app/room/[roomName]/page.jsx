@@ -68,6 +68,22 @@ const RoomNamed = ({ params: { roomName } }) => {
   useEffect(() => {
     if (runOnce2.current) return;
     if (!nsSocket.current) return;
+    nsSocket.current.on("disconnect", (reason) => {
+      console.log("Disconnected from the server. Reason:", reason);
+
+      // Optionally, take action based on the reason
+      if (reason === "io server disconnect") {
+        // The server forcibly disconnected this client
+        alert("You were kicked or disconnected by the server.");
+      } else if (reason === "ping timeout") {
+        console.log("Connection lost due to ping timeout.");
+      } else if (reason === "transport close") {
+        console.log("Transport closed unexpectedly.");
+      } else {
+        console.log("Disconnected due to network issues.");
+      }
+    });
+
     nsSocket.current.on("producer-add", ({ id, kind }) => {
       console.log(`Producer added: ${id}, ${kind}`);
       if (isConsuming.current) {
@@ -106,9 +122,6 @@ const RoomNamed = ({ params: { roomName } }) => {
     });
 
     runOnce2.current = true;
-    return () => {
-      nsSocket.current.disconnect();
-    };
   }, [nsSocket.current]);
 
   const getLocalStream = () => {

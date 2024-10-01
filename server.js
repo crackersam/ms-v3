@@ -137,6 +137,33 @@ app.prepare().then(() => {
             nsSocketId: nsSocket.id,
           });
 
+          nsSocket.on("boot", (socketId) => {
+            producers
+              .filter((obj) => obj.socketId === socketId)
+              .forEach((obj) => {
+                obj.producer.close();
+              });
+            producers = producers.filter((obj) => obj.socketId !== socketId);
+            consumers
+              .filter((obj) => obj.socketId === socketId)
+              .forEach((obj) => {
+                obj.consumer.close();
+              });
+            consumers = consumers.filter((obj) => obj.socketId !== socketId);
+            transports
+              .filter((obj) => obj.socketId === socketId)
+              .forEach((obj) => {
+                obj.transport.close();
+              });
+            transports = transports.filter((obj) => obj.socketId !== socketId);
+
+            namespaces[namespace].emit("producer-remove", {
+              socketId,
+            });
+            namespaces[namespace].sockets.get(socketId).disconnect();
+            console.log(socketId, "booted");
+          });
+
           nsSocket.on("createRoom", async (roomName, callback) => {
             if (rooms[roomName] === undefined) {
               // worker.createRouter(options)
@@ -147,6 +174,7 @@ app.prepare().then(() => {
               rooms[roomName] = await worker.createRouter({
                 mediaCodecs,
               });
+              rooms[roomName].admin = nsSocket.id;
               // Create an AudioLevelObserver on the router
               rooms[roomName].audioLevelObserver = await rooms[
                 roomName

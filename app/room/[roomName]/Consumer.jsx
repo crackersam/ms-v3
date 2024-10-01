@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Fullscreen, Minimize } from "lucide-react";
+import { Fullscreen, Minimize, Ban } from "lucide-react";
 
 const Consumer = ({ consumer, audioConsumer, myId, socket }) => {
   const videoRef = useRef();
@@ -53,6 +53,12 @@ const Consumer = ({ consumer, audioConsumer, myId, socket }) => {
         className="max-h-[100%] max-w-[100%]"
         autoPlay
         playsInline
+      />
+      <Ban
+        className="absolute bottom-1 right-10 m-2 cursor-pointer"
+        onClick={() => {
+          socket.emit("boot", consumer.socketId);
+        }}
       />
       <Fullscreen
         className="absolute bottom-1 right-1 m-2 cursor-pointer"
