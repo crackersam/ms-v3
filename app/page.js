@@ -43,12 +43,15 @@ const Home = () => {
         <input
           ref={newRoomName}
           type="text"
-          className="rounded-full px-5 py-2 text-2xl text-black"
+          className="rounded-full px-5 py-2 text-xl text-black"
         />
         <button
           type="submit"
-          className="bg-blue-500 text-white text-2xl rounded-full px-5 py-2"
-          onClick={() => router.push(`/room/${newRoomName.current.value}`)}
+          className="bg-blue-500 text-white text-xl rounded-full px-5 py-2"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push(`/room/${newRoomName.current.value}`);
+          }}
         >
           Go!
         </button>
