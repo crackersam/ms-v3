@@ -74,6 +74,12 @@ const RoomNamed = ({ params: { roomName } }) => {
 
       // Optionally, take action based on the reason
       if (reason === "io server disconnect") {
+        const newConsumers = [...consumers];
+        newConsumers.forEach((consumer) => {
+          consumer.consumer.close();
+          consumer = null;
+        });
+        setConsumers(newConsumers);
         // The server forcibly disconnected this client
         alert("You were kicked or disconnected by the server.");
       } else if (reason === "ping timeout") {
