@@ -168,6 +168,7 @@ app.prepare().then(() => {
           nsSocket.on("joinRequest", ({ name, roomName }) => {
             if (
               !rooms[roomName] ||
+              !namespaces[namespace].sockets.get(rooms[roomName].admin) ||
               namespaces[namespace].sockets.get(rooms[roomName].admin)
                 .disconnected
             ) {
