@@ -56,13 +56,17 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
       ref={videoPlayer}
       className="flex relative flex-col justify-center bg-black align-middle rounded-md m-2 border-slate-400 border-[3px]"
     >
-      <div ref={videoCase} className="flex justify-center w-[180px] h-[180px]">
+      <div
+        ref={videoCase}
+        className="flex flex-col overflow-x-hidden justify-center w-[180px] h-[180px]"
+      >
         <video
           ref={videoRef}
           className="max-h-[100%] max-w-[100%]"
           autoPlay
           playsInline
         />
+        <p className="text-white text-center">{consumer.appData.name}</p>
         {admin.current && socket.id !== consumer.socketId && (
           <Ban
             className="absolute top-1 right-1 m-2 cursor-pointer bg-black rounded-full text-white"

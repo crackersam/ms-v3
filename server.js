@@ -165,6 +165,28 @@ app.prepare().then(() => {
             console.log(socketId, "booted");
           });
 
+          nsSocket.on("joinRequest", ({ name, roomName }) => {
+            if (
+              !rooms[roomName] ||
+              namespaces[namespace].sockets.get(rooms[roomName].admin)
+                .disconnected
+            ) {
+              nsSocket.emit("joinApproval");
+            } else {
+              namespaces[namespace].sockets
+                .get(rooms[roomName].admin)
+                .emit("joinRequest", { name, socketId: nsSocket.id });
+            }
+          });
+
+          nsSocket.on("joinApproval", ({ socketId }) => {
+            namespaces[namespace].sockets.get(socketId).emit("joinApproved");
+          });
+
+          nsSocket.on("joinRejection", ({ socketId }) => {
+            namespaces[namespace].sockets.get(socketId).emit("joinRejected");
+          });
+
           nsSocket.on("pause", () => {
             producers
               .filter((obj) => obj.socketId === nsSocket.id)
@@ -378,10 +400,17 @@ app.prepare().then(() => {
                     producerId: producerId,
                     kind: consumer.kind,
                     rtpParameters: consumer.rtpParameters,
-                    appData:
-                      producers[
+                    appData: {
+                      mediaTag:
+                        producers[
+                          producers.findIndex(
+                            (p) => p.producer.id === producerId
+                          )
+                        ].producer.appData.mediaTag,
+                      name: producers[
                         producers.findIndex((p) => p.producer.id === producerId)
-                      ].producer.appData.mediaTag,
+                      ].producer.appData.name,
+                    },
                     socketId:
                       producers[
                         producers.findIndex((p) => p.producer.id === producerId)

@@ -53,6 +53,7 @@ const RoomNamed = ({ params: { roomName } }) => {
   const speakerIndex = React.useRef(0);
   const runOnce2 = useRef(false);
   const isAdmin = React.useRef(false);
+  const [name, setName] = React.useState(null);
   useEffect(() => {
     if (runOnce.current) return;
     socket.emit("joinNamespace", roomName);
@@ -97,6 +98,32 @@ const RoomNamed = ({ params: { roomName } }) => {
         connectRecvTransport(id);
       }
     });
+    nsSocket.current.on("joinApproval", () => {
+      getLocalStream();
+    });
+
+    nsSocket.current.on("joinResponse", ({ response }) => {
+      if (response) {
+        getLocalStream();
+      } else {
+        alert("Your request to join the room was denied.");
+      }
+    });
+    nsSocket.current.on("joinRequest", ({ name, socketId }) => {
+      let response = window.confirm(`${name} wants to join the room`);
+      if (response) {
+        nsSocket.current.emit("joinApproval", { socketId });
+      } else {
+        nsSocket.current.emit("joinRejection", { socketId });
+      }
+    });
+    nsSocket.current.on("joinRejected", () => {
+      alert("Your request to join the room was denied.");
+    });
+    nsSocket.current.on("joinApproved", () => {
+      console.log("Join approved");
+      getLocalStream();
+    });
     const publishId = uuidv4();
     params.current.appData = { ...params.current, mediaTag: publishId };
     audioParams.current.appData = {
@@ -131,8 +158,19 @@ const RoomNamed = ({ params: { roomName } }) => {
     runOnce2.current = true;
   }, [nsSocket.current]);
 
-  const getLocalStream = () => {
+  useEffect(() => {
+    if (name) {
+      params.current.appData.name = name;
+      nsSocket.current.emit("joinRequest", { name, roomName });
+    }
+  }, [name]);
+
+  const getName = () => {
     setButton(true);
+    setName(prompt("Enter your name"));
+  };
+
+  const getLocalStream = () => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
@@ -402,7 +440,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       {!button && (
         <button
           className="absolute top-0 left-[50%] z-10 translate-x-[-50%] p-2 bg-slate-800 rounded-md text-white"
-          onClick={getLocalStream}
+          onClick={getName}
         >
           Join Room
         </button>
@@ -411,7 +449,7 @@ const RoomNamed = ({ params: { roomName } }) => {
         {consumers.map((consumer, i) => {
           // Find the matching audioConsumer based on appData
           const matchingAudio = audioConsumers.find(
-            (audio) => audio?.appData === consumer?.appData
+            (audio) => audio?.appData.mediaTag === consumer?.appData.mediaTag
           );
 
           return (
@@ -429,7 +467,7 @@ const RoomNamed = ({ params: { roomName } }) => {
         {consumers.map((consumer, i) => {
           // Find the matching audioConsumer based on appData
           const matchingAudio = audioConsumers.find(
-            (audio) => audio?.appData === consumer?.appData
+            (audio) => audio?.appData.mediaTag === consumer?.appData.mediaTag
           );
 
           return (
