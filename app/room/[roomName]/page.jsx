@@ -470,7 +470,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       </div>
       <div
         ref={handRaise}
-        className="absolute top-[30%] left-[66%] hidden rounded-md bg-white text-black p-2"
+        className="absolute top-[25%] left-[66%] hidden rounded-md bg-white text-black p-2"
       >
         {handRaised}'s hand is raised
       </div>
