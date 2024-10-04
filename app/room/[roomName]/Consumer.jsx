@@ -62,7 +62,7 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
       >
         <video
           ref={videoRef}
-          className="max-h-[100%] max-w-[100%]"
+          className="max-h-[85%] max-w-[100%]"
           autoPlay
           playsInline
         />
