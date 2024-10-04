@@ -188,6 +188,10 @@ app.prepare().then(() => {
             namespaces[namespace].sockets.get(socketId).emit("joinRejected");
           });
 
+          nsSocket.on("raiseHand", ({ name, roomName }) => {
+            namespaces[roomName].emit("handRaised", { name });
+          });
+
           nsSocket.on("pause", () => {
             producers
               .filter((obj) => obj.socketId === nsSocket.id)

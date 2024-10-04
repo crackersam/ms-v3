@@ -5,14 +5,14 @@ import { io } from "socket.io-client";
 import * as mediasoup from "mediasoup-client";
 import ActiveSpeaker from "./ActiveSpeaker";
 import Consumer from "./Consumer";
-import { Fullscreen, Minimize } from "lucide-react";
+import { Fullscreen, Minimize, Hand } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 const RoomNamed = ({ params: { roomName } }) => {
   const nsSocket = useRef(null);
   const runOnce = useRef(false);
   const params = React.useRef({
-    // mediasoup params
+    // mediasoup params:
     encodings: [
       {
         rid: "r0",
@@ -54,6 +54,9 @@ const RoomNamed = ({ params: { roomName } }) => {
   const runOnce2 = useRef(false);
   const isAdmin = React.useRef(false);
   const [name, setName] = React.useState(null);
+  const hand = React.useRef(null);
+  const handRaise = React.useRef(null);
+  const [handRaised, setHandRaised] = React.useState(false);
   useEffect(() => {
     if (runOnce.current) return;
     socket.emit("joinNamespace", roomName);
@@ -64,6 +67,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       });
       console.log(`Joined namespace: ${namespace}`);
     });
+    hand.current.style.zIndex = speakerIndex.current + 1;
     runOnce.current = true;
   }, []);
 
@@ -91,7 +95,16 @@ const RoomNamed = ({ params: { roomName } }) => {
         console.log("Disconnected due to network issues.");
       }
     });
-
+    nsSocket.current.on("handRaised", ({ name }) => {
+      if (handRaised) return;
+      setHandRaised(name);
+      handRaise.current.style.display = "block";
+      handRaise.current.style.zIndex = speakerIndex.current + 1;
+      setTimeout(() => {
+        handRaise.current.style.display = "none";
+        setHandRaised("");
+      }, 10000);
+    });
     nsSocket.current.on("producer-add", ({ id, kind }) => {
       console.log(`Producer added: ${id}, ${kind}`);
       if (isConsuming.current) {
@@ -178,6 +191,7 @@ const RoomNamed = ({ params: { roomName } }) => {
         const audioTrack = stream.getAudioTracks()[0];
         audioParams.current.track = audioTrack;
         params.current.track = track;
+        hand.current.style.display = "block";
         goConnect(true);
       })
       .catch((err) => {
@@ -445,6 +459,21 @@ const RoomNamed = ({ params: { roomName } }) => {
           Join Room
         </button>
       )}
+      <div
+        ref={hand}
+        className={`absolute top-[40%] right-1 hidden rounded-md bg-black text-white p-2 cursor-pointer`}
+        onClick={() => {
+          nsSocket.current.emit("raiseHand", { roomName, name });
+        }}
+      >
+        <Hand size={24} strokeWidth={2} />
+      </div>
+      <div
+        ref={handRaise}
+        className="absolute top-[33%] left-[66%] hidden rounded-md bg-white text-black p-2"
+      >
+        {handRaised}'s hand is raised
+      </div>
       <div className="absolute top-0 left-[50%] translate-x-[-50%] justify-center align-middle w-screen h-[calc(100vh-200px)]">
         {consumers.map((consumer, i) => {
           // Find the matching audioConsumer based on appData
