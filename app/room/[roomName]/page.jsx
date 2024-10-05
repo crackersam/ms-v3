@@ -472,7 +472,7 @@ const RoomNamed = ({ params: { roomName } }) => {
         ref={handRaise}
         className="absolute top-[25%] left-[66%] hidden rounded-md bg-white text-black p-2"
       >
-        {handRaised}'s hand is raised
+        {handRaised}&#39;s hand is raised
       </div>
       <div className="absolute top-0 left-[50%] translate-x-[-50%] justify-center align-middle w-screen h-[calc(100vh-200px)]">
         {consumers.map((consumer, i) => {
