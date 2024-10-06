@@ -189,6 +189,15 @@ const RoomNamed = ({ params: { roomName } }) => {
       .then((stream) => {
         const track = stream.getVideoTracks()[0];
         const audioTrack = stream.getAudioTracks()[0];
+        setConsumers([
+          { consumer: { track }, appData: { mediaTag: "local", name: name } },
+        ]);
+        setAudioConsumers([
+          {
+            consumer: { track: audioTrack },
+            appData: { mediaTag: "local", name: name },
+          },
+        ]);
         audioParams.current.track = audioTrack;
         params.current.track = track;
         hand.current.style.display = "block";
@@ -304,7 +313,23 @@ const RoomNamed = ({ params: { roomName } }) => {
                 ({ id }) => {
                   // Tell the transport that parameters were transmitted and provide it with the
                   // server side producer's id.
-                  myId.current = id;
+                  if (parameters.kind === "video") {
+                    setConsumers((prevConsumers) => {
+                      const newConsumers = [...prevConsumers];
+                      newConsumers.find(
+                        (obj) => obj.appData.mediaTag === "local"
+                      ).producerId = id;
+                      return newConsumers;
+                    });
+                  } else if (parameters.kind === "audio") {
+                    setAudioConsumers((prevConsumers) => {
+                      const newConsumers = [...prevConsumers];
+                      newConsumers.find(
+                        (obj) => obj.appData.mediaTag === "local"
+                      ).producerId = id;
+                      return newConsumers;
+                    });
+                  }
                   callback({ id });
                 }
               );

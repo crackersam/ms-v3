@@ -359,7 +359,10 @@ app.prepare().then(() => {
             let currentProducers = [];
             console.log(producers.length, "producers");
             producers.forEach((producer) => {
-              if (producer.roomName === roomName) {
+              if (
+                producer.roomName === roomName &&
+                producer.socketId !== nsSocket.id
+              ) {
                 currentProducers = [
                   ...currentProducers,
                   { id: producer.producer.id, kind: producer.producer.kind },
