@@ -92,6 +92,7 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
             }}
           />
         )}
+
         {consumer.appData.mediaTag === "local" && !paused && (
           <CirclePause
             className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-full text-white"
@@ -102,13 +103,18 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
           />
         )}
         {consumer.appData.mediaTag === "local" && paused && (
-          <CirclePlay
-            className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-full text-white"
-            onClick={() => {
-              socket.emit("resume");
-              setPaused(false);
-            }}
-          />
+          <>
+            <p className="absolute bottom-[50%] left-[50%] -translate-x-[50%] translate-y-[50%] p-2 rounded-md bg-slate-800 text-white">
+              Paused
+            </p>
+            <CirclePlay
+              className="absolute bottom-1 left-1 m-2 cursor-pointer bg-black rounded-full text-white"
+              onClick={() => {
+                socket.emit("resume");
+                setPaused(false);
+              }}
+            />
+          </>
         )}
       </div>
     </div>
