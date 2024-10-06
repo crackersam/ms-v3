@@ -29,7 +29,8 @@ const Consumer = ({ consumer, audioConsumer, myId, socket, admin }) => {
     if (audioConsumer) {
       if (
         myId.current === audioConsumer.producerId ||
-        myId.current === consumer.producerId
+        myId.current === consumer.producerId ||
+        consumer.appData.mediaTag === "local"
       ) {
         videoRef.current.muted = true;
       }
