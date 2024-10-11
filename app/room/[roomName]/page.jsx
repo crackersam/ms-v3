@@ -56,7 +56,8 @@ const RoomNamed = ({ params: { roomName } }) => {
   const [name, setName] = React.useState(null);
   const hand = React.useRef(null);
   const handRaise = React.useRef(null);
-  const [handRaised, setHandRaised] = React.useState(false);
+  const [handRaised, setHandRaised] = React.useState("");
+  const handRaiseUnmodifyable = React.useRef(false);
   useEffect(() => {
     if (runOnce.current) return;
     socket.emit("joinNamespace", roomName);
@@ -96,13 +97,15 @@ const RoomNamed = ({ params: { roomName } }) => {
       }
     });
     nsSocket.current.on("handRaised", ({ name }) => {
-      if (handRaised) return;
+      if (handRaiseUnmodifyable) return;
       setHandRaised(name);
+      handRaiseUnmodifyable.current = true;
       handRaise.current.style.display = "block";
       handRaise.current.style.zIndex = speakerIndex.current + 1;
       setTimeout(() => {
         handRaise.current.style.display = "none";
         setHandRaised("");
+        handRaiseUnmodifyable.current = false;
       }, 10000);
     });
     nsSocket.current.on("producer-add", ({ id, kind }) => {
