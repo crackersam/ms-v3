@@ -97,7 +97,7 @@ const RoomNamed = ({ params: { roomName } }) => {
       }
     });
     nsSocket.current.on("handRaised", ({ name }) => {
-      if (handRaiseUnmodifyable) return;
+      if (handRaiseUnmodifyable.current) return;
       setHandRaised(name);
       handRaiseUnmodifyable.current = true;
       handRaise.current.style.display = "block";
